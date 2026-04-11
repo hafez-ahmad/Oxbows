@@ -1251,7 +1251,7 @@
         // Load and display GeoJSON
         async function loadGeoJSON() {
             try {
-                const response = await fetch('df_merged_arcgis.geojson');
+                const response = await fetch('https://raw.githubusercontent.com/hafez-ahmad/Oxbows/main/df_merged_arcgis.geojson');
                 const data = await response.json();
                 
                 lakeFeatures = data.features;
