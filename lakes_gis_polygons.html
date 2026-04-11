@@ -1,0 +1,2719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribution of Floodplain Lakes in the Mississippi Alluvial Valley</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 380px;
+            background: white;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom: none;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .sidebar-header p {
+            font-size: 13px;
+            opacity: 0.95;
+            letter-spacing: 0.5px;
+        }
+
+        .search-box {
+            padding: 16px 20px;
+            border-bottom: none;
+            background: linear-gradient(180deg, #fafbfc 0%, #f0f2f5 100%);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e4e8;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+            color: #333;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12);
+            background: #fafbfc;
+        }
+
+        .search-box input::placeholder {
+            color: #a0a8b0;
+        }
+
+        .stats-bar {
+            padding: 14px 20px;
+            background: linear-gradient(90deg, #f0f4ff 0%, #e8ecff 100%);
+            border-bottom: 1px solid #e0e4e8;
+            font-size: 13px;
+            color: #555;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .lakes-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            background: linear-gradient(180deg, #fafbfc 0%, #f5f6f8 100%);
+        }
+
+        .lake-item {
+            padding: 14px;
+            margin: 8px 0;
+            background: white;
+            border: 2px solid #e8ecf1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 13px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lake-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lake-item:hover {
+            background: #f8f9fc;
+            border-color: #667eea;
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+            transform: translateX(4px);
+        }
+
+        .lake-item:hover::before {
+            opacity: 1;
+        }
+
+        .lake-item.active {
+            background: linear-gradient(135deg, #e8ecff 0%, #f0f4ff 100%);
+            border-color: #667eea;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+        }
+
+        .lake-item.active::before {
+            opacity: 1;
+        }
+
+        .lake-name {
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+            font-size: 14px;
+            letter-spacing: 0.2px;
+        }
+
+        .lake-info {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .lake-badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            background: #f0f2f5;
+            border-radius: 6px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .lake-id {
+            color: #999;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .lake-area {
+            color: #666;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .leaflet-popup-content {
+            font-size: 13px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 8px !important;
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .leaflet-popup {
+            max-width: 380px !important;
+        }
+
+        /* Label styling */
+        .leaflet-tooltip {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            padding: 4px 6px;
+            font-size: 9px;
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .leaflet-tooltip-bottom::before {
+            border-bottom-color: #667eea;
+        }
+
+        .leaflet-tooltip-top::before {
+            border-top-color: #667eea;
+        }
+
+        .lake-label {
+            text-align: center;
+            white-space: pre-line;
+            line-height: 1.3;
+            font-size: 8px !important;
+            padding: 3px 5px !important;
+            opacity: 0.95;
+            letter-spacing: 0.3px;
+        }
+
+        .lake-label.hidden {
+            display: none;
+        }
+
+        .popup-container {
+            background: white;
+            border-radius: 8px;
+        }
+
+        .popup-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px 8px 0 0;
+            margin: -8px -8px 8px -8px;
+        }
+
+        .popup-lake-name {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .popup-lake-id {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .popup-section {
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e8ecf1;
+        }
+
+        .popup-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .popup-section-title {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 6px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .popup-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+
+        .popup-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .popup-value {
+            color: #333;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .legend-box {
+            display: none !important;
+        }
+
+        .legend-title {
+            display: none !important;
+        }
+
+        .legend-item {
+            display: none !important;
+        }
+
+        .legend-color {
+            display: none !important;
+        }
+
+        .basemap-selector {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+            min-width: 200px;
+        }
+
+        .basemap-title {
+            font-weight: 700;
+            color: #1a1a2e;
+            font-size: 13px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .basemap-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .basemap-button {
+            padding: 8px 10px;
+            border: 2px solid #e8ecf1;
+            background: white;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #555;
+            text-align: center;
+        }
+
+        .basemap-button:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .basemap-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-track {
+            background: #f1f3f5;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-thumb {
+            background: #cbd2db;
+            border-radius: 3px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar-thumb:hover {
+            background: #a0a8b0;
+        }
+
+        .lakes-list {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd2db #f1f3f5;
+        }
+
+        .info-box {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+            border-left: 4px solid #ffc107;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #7a6200;
+            margin: 0 12px 12px 12px;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.15);
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 2px solid #e8ecf1;
+            background: linear-gradient(180deg, #f8f9fc 0%, #f0f2f5 100%);
+        }
+
+        .acknowledgement-toggle {
+            width: 100%;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .acknowledgement-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .acknowledgement-toggle.expanded::before {
+            content: '▼';
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .acknowledgement-toggle:not(.expanded)::before {
+            content: '▶';
+            display: inline-block;
+        }
+
+        .acknowledgement-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            padding: 0 12px;
+        }
+
+        .acknowledgement-panel.expanded {
+            max-height: 800px;
+            padding: 12px;
+        }
+
+        .acknowledgement-content {
+            background: white;
+            border: 1px solid #e8ecf1;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        .acknowledgement-section {
+            margin-bottom: 12px;
+        }
+
+        .acknowledgement-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .acknowledgement-title {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .acknowledgement-text {
+            color: #666;
+            font-size: 11px;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .paper-item {
+            background: linear-gradient(135deg, #f8f9fc 0%, #f0f4ff 100%);
+            border-left: 3px solid #667eea;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 10px;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .paper-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .paper-citation {
+            font-style: italic;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .paper-doi {
+            color: #764ba2;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;
+        }
+
+        .acknowledgement-toggle.half-width {
+            flex: 1;
+            padding: 10px 8px;
+            font-size: 11px;
+        }
+
+        .acknowledgement-toggle.half-width::before {
+            content: '';
+            display: none;
+        }
+
+        .developer-info {
+            background: linear-gradient(135deg, #f8f9fc 0%, #f0f4ff 100%);
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .developer-title {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .acknowledgement-text {
+            font-size: 10px;
+            color: #555;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        .developer-text {
+            font-size: 10px;
+            color: #555;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        .developer-email {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .developer-email:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        /* Tab Navigation */
+        .sidebar-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e0e4e8;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            background: white;
+            color: #666;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            background: #f0f4ff;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            background: #f0f4ff;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Advanced Analysis */
+        .analysis-section {
+            padding: 16px;
+            border-bottom: 1px solid #e0e4e8;
+        }
+
+        .analysis-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .stat-card-label {
+            font-size: 10px;
+            color: #999;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .stat-card-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .metric-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e0e4e8;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            background: white;
+        }
+
+        .comparison-table {
+            width: 100%;
+            font-size: 11px;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 6px;
+            text-align: left;
+            border-bottom: 1px solid #e0e4e8;
+        }
+
+        .comparison-table th {
+            background: #f0f4ff;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .export-btn, .heatmap-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+        }
+
+        .export-btn:hover, .heatmap-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Colorbar Legend */
+        #colorbarContainer {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        #colorbarContainer.active {
+            display: block;
+        }
+
+        .colorbar-title {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .colorbar-gradient {
+            width: 100%;
+            height: 25px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 6px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .colorbar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .selection-list {
+            font-size: 11px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .selection-item {
+            padding: 6px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            background: white;
+            border: 1px solid #e0e4e8;
+        }
+
+        .selection-item.selected {
+            background: #f0f4ff;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .selection-item:hover {
+            background: #f0f4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-map"></i> MAV Lakes Map</h1>
+                <p>Mississippi Alluvial Valley Lakes</p>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="map-tab">🗺️ Map</button>
+                <button class="tab-btn" data-tab="analysis-tab">📊 Analysis</button>
+                <button class="tab-btn" data-tab="visualization-tab">📈 Visualization</button>
+            </div>
+
+            <!-- Map Tab Content -->
+            <div class="tab-content active" id="map-tab">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by lake name or ID...">
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-label">TOTAL LAKES</div>
+                    <div class="stat-value" id="totalCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">DISPLAYED</div>
+                    <div class="stat-value" id="displayCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">AVG AREA</div>
+                    <div class="stat-value" id="avgArea">0</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                💡 <strong>Tip:</strong> Click on a lake to view detailed information, or search by name or ID.
+            </div>
+
+            <div class="lakes-list scrollbar-hide" id="lakesList"></div>
+
+            <div class="sidebar-footer">
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <button class="acknowledgement-toggle" id="fundingToggle" style="flex: 1;">💰 Funding</button>
+                    <button class="acknowledgement-toggle" id="papersToggle" style="flex: 1;">📚 Papers</button>
+                    <button class="acknowledgement-toggle" id="descToggle" style="flex: 1;">📖 Description</button>
+                    <button class="acknowledgement-toggle" id="devToggle" style="flex: 1;">👨‍💻 Dev</button>
+                </div>
+                
+                <div class="acknowledgement-panel" id="fundingPanel">
+                    <div class="acknowledgement-content">
+                        <div class="acknowledgement-section">
+                            <div class="acknowledgement-title">💰 Funding Source</div>
+                            <div class="acknowledgement-text">
+                                Funding was provided by the U.S. Fish and Wildlife Service, Grant F21AP02996-00, to the Mississippi Department of Wildlife, Fisheries and Parks. The Mississippi Cooperative Fish and Wildlife Research Unit is jointly sponsored by the Mississippi Department of Wildlife, Fisheries and Parks; Mississippi State University; the U.S. Geological Survey; the U.S. Fish and Wildlife Service; and the Wildlife Management Institute.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acknowledgement-panel" id="papersPanel">
+                    <div class="acknowledgement-content">
+                        <div class="acknowledgement-section">
+                            <div class="acknowledgement-title">📚 Related Publications</div>
+                            <div class="paper-item">
+                                <div class="paper-citation">Miranda, L.E., M.C. Rhodes, Y. Allen, and K.J. Killgore. 2021.</div>
+                                <div style="margin: 4px 0;">An inventory and typology of permanent floodplain lakes in the Mississippi Alluvial Valley: A first step to conservation planning.</div>
+                                <div style="font-style: italic; margin-bottom: 4px;">Aquatic Sciences, 83, 20.</div>
+                                <div class="paper-doi">https://doi.org/10.1007/s00027-020-00775-3</div>
+                            </div>
+                            <div class="paper-item">
+                                <div class="paper-citation">Ahmad, H., L.E. Miranda, C.G. Dunn, M.R. Boudreau, and M.E. Colvin. 2024.</div>
+                                <div style="margin: 4px 0;">Connectivity patterns between floodplain lakes and neighboring streams in the historical floodplain of the Lower Mississippi River.</div>
+                                <div style="font-style: italic; margin-bottom: 4px;">Ecological Indicators 169.</div>
+                                <div class="paper-doi">https://doi.org/10.1016/j.ecolind.2024.112808</div>
+                            </div>
+                            <div class="paper-item">
+                                <div class="paper-citation">Palmieri, M., L.E. Miranda, M.R. Boudreau, C.G. Dunn, L.M. Burger, and D. Riecke. In press.</div>
+                                <div style="margin: 4px 0;">Forecasting spread of invasive fish over a largescale network of lakes using local expert knowledge.</div>
+                                <div style="font-style: italic; margin-bottom: 4px;">Aquatic Invasions.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acknowledgement-panel" id="descPanel">
+                    <div class="acknowledgement-content">
+                        <div class="acknowledgement-section">
+                            <div class="acknowledgement-title">📖 Project Description</div>
+                            <div class="acknowledgement-text">
+                                The alluvial valley of the Mississippi River is an extensive area harboring hundreds of lakes created by fluvial dynamics. These floodplain lakes are scattered throughout the valley and carved over thousands of years by shifting river courses and other hydro-fluvial processes associated with contemporary and prehistoric rivers. These lakes have significant ecological importance as they support a large component of North American biodiversity. We used remote sensing to catalog lakes, to characterize morphology, and to characterize connectivity. We identified over 1,300 permanent lakes totaling over 100,000 ha. We also list the likelihood for bigheaded carp inhabiting the lake. Details are available in the listed publications.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acknowledgement-panel" id="devPanel">
+                    <div class="acknowledgement-content">
+                        <div class="acknowledgement-section">
+                            <div class="acknowledgement-title">👨‍💻 Developed By</div>
+                            <div class="acknowledgement-text">
+                                <strong>Hafez Ahmad</strong><br>
+                                <a href="mailto:Hafezahmad100@gmail.com" class="developer-email">📧 Hafezahmad100@gmail.com</a><br><br>
+                                <strong>Dataset:</strong> Lake morphometry, connectivity, and carp probability estimates<br><br>
+                                If you need any queries or have questions, please contact the developer.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>  <!-- End map-tab -->
+
+            <!-- Analysis Tab Content -->
+            <div class="tab-content" id="analysis-tab">
+                <!-- Statistics Dashboard -->
+                <div class="analysis-section">
+                    <div class="analysis-title">📈 Statistics Dashboard</div>
+                    <select id="metricSelect" class="metric-select">
+                        <option value="area">Lake Area (hectares)</option>
+                        <option value="perimeter">Perimeter (km)</option>
+                        <option value="Carp_P">Carp Probability</option>
+                        <option value="cohesion">Cohesion</option>
+                        <option value="proximity">Proximity</option>
+                    </select>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-label">Min</div>
+                            <div class="stat-card-value" id="minValue">—</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Max</div>
+                            <div class="stat-card-value" id="maxValue">—</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Mean</div>
+                            <div class="stat-card-value" id="meanValue">—</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-label">Std Dev</div>
+                            <div class="stat-card-value" id="stdValue">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multi-Lake Comparison -->
+                <div class="analysis-section">
+                    <div class="analysis-title">🔄 Multi-Lake Comparison</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 8px;">Click "➕ Add to Comparison" button in lake popups (max 5):</div>
+                    <div class="selection-list" id="comparisonList">No lakes selected</div>
+                    
+                    <!-- Variable Selection -->
+                    <div id="variableSelectorContainer" style="display: none; margin-top: 12px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                        <div style="font-size: 11px; font-weight: 600; margin-bottom: 8px; color: #333;">Select Variables to Compare:</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px;">
+                            <label><input type="checkbox" name="compVar" value="AREASQKM" checked> Area (km²)</label>
+                            <label><input type="checkbox" name="compVar" value="Carp_P" checked> Carp Probability</label>
+                            <label><input type="checkbox" name="compVar" value="Perimeter"> Perimeter (km)</label>
+                            <label><input type="checkbox" name="compVar" value="Cohesion_J"> Cohesion</label>
+                            <label><input type="checkbox" name="compVar" value="Proximity_"> Proximity</label>
+                            <label><input type="checkbox" name="compVar" value="Exchange_J"> Exchange</label>
+                            <label><input type="checkbox" name="compVar" value="Dispersion"> Dispersion</label>
+                            <label><input type="checkbox" name="compVar" value="Duration"> Duration</label>
+                            <label><input type="checkbox" name="compVar" value="Timing"> Timing</label>
+                            <label><input type="checkbox" name="compVar" value="Recurrence"> Recurrence</label>
+                            <label><input type="checkbox" name="compVar" value="Seasonality"> Seasonality</label>
+                            <label><input type="checkbox" name="compVar" value="Width_km"> Width (km)</label>
+                            <label><input type="checkbox" name="compVar" value="Length_km"> Length (km)</label>
+                        </div>
+                    </div>
+                    
+                    <table class="comparison-table" id="comparisonTable" style="display: none; margin-top: 12px;">
+                        <thead id="comparisonTableHead"></thead>
+                        <tbody id="comparisonBody"></tbody>
+                    </table>
+                    <button onclick="selectedLakes = []; displayComparisonUI();" style="width: 100%; margin-top: 8px; padding: 8px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-size: 11px; color: #666;">🗑️ Clear Selection</button>
+                </div>
+
+                <!-- Heat Map Metric Selection -->
+                <div class="analysis-section">
+                    <div class="analysis-title">🔥 Heat Map Visualization</div>
+                    <select id="heatmapMetric" class="metric-select">
+                        <option value="Carp_P">Carp Probability</option>
+                        <option value="AREASQKM">Lake Area</option>
+                        <option value="Cohesion_J">Cohesion</option>
+                        <option value="Proximity_J">Proximity</option>
+                    </select>
+                    <button class="heatmap-btn" id="applyHeatmapBtn">Apply Heat Map</button>
+                    <button class="heatmap-btn" id="resetHeatmapBtn" style="background: linear-gradient(135deg, #999 0%, #666 100%);">Reset to Carp Probability</button>
+
+                    <!-- Colorbar Legend -->
+                    <div id="colorbarContainer">
+                        <div class="colorbar-title" id="colorbarTitle">High → Low Scale</div>
+                        <div class="colorbar-gradient" id="colorbarGradient"></div>
+                        <div class="colorbar-labels">
+                            <span id="colorbarMin">0</span>
+                            <span id="colorbarMax">100</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Export -->
+                <div class="analysis-section">
+                    <div class="analysis-title">💾 Data Export</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 10px;">Export currently displayed lakes:</div>
+                    <button class="export-btn" id="exportCSVBtn">📥 Download as CSV</button>
+                </div>
+            </div>  <!-- End analysis-tab -->
+
+            <!-- Visualization Tab Content -->
+            <div class="tab-content" id="visualization-tab">
+                <div class="analysis-section">
+                    <div class="analysis-title">📊 Connectivity Metrics Radar</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 12px;">Normalized values (0 to 1) for all lakes - compare metric patterns</div>
+                    
+                    <!-- Radar Chart Canvas -->
+                    <div style="position: relative; height: 350px; margin-bottom: 16px;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    
+                    <div style="font-size: 10px; color: #999; text-align: center; margin-bottom: 12px;">
+                        <strong>Metrics:</strong> Duration • Timing • Recurrence • Seasonality
+                    </div>
+                </div>
+
+                <!-- Scatter Plot: Area vs Carp Risk -->
+                <div class="analysis-section">
+                    <div class="analysis-title">📍 Scatter Plot: Area vs Carp Probability</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 12px;">Relationship between lake size and invasive species risk</div>
+                    
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="scatterChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Box Plot: Metric Distribution -->
+                <div class="analysis-section">
+                    <div class="analysis-title">📦 Box Plot: Metric Distribution</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 10px;">Select a metric to view its quartile distribution</div>
+                    
+                    <select id="boxplotMetric" class="metric-select" style="margin-bottom: 12px;">
+                        <option value="Carp_P">Carp Probability</option>
+                        <option value="AREASQKM">Area (km²)</option>
+                        <option value="Perimeter">Perimeter (km)</option>
+                        <option value="Cohesion_J">Cohesion</option>
+                        <option value="Proximity_J">Proximity</option>
+                        <option value="Duration">Duration</option>
+                        <option value="Seasonality">Seasonality</option>
+                    </select>
+                    
+                    <div style="position: relative; height: 250px;">
+                        <canvas id="boxplotChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top Lakes Bar Chart -->
+                <div class="analysis-section">
+                    <div class="analysis-title">🏆 Top Lakes by Metric</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 10px;">Select a metric to see top 10 lakes</div>
+                    
+                    <select id="topLakesMetric" class="metric-select" style="margin-bottom: 12px;">
+                        <option value="AREASQKM">Area (km²)</option>
+                        <option value="Carp_P">Carp Probability</option>
+                        <option value="Cohesion_J">Cohesion</option>
+                        <option value="Proximity_J">Proximity</option>
+                        <option value="Duration">Duration</option>
+                        <option value="Seasonality">Seasonality</option>
+                    </select>
+                    
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="topLakesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Relationship Plot: Two Variables with Correlation -->
+                <div class="analysis-section">
+                    <div class="analysis-title">🔗 Relationship Analysis</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 12px;">Select two variables to analyze their relationship and correlation</div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 10px; color: #666; font-weight: 600; display: block; margin-bottom: 4px;">Variable X (Horizontal)</label>
+                            <select id="relationshipVarX" class="metric-select">
+                                <option value="AREASQKM">Area (km²)</option>
+                                <option value="Carp_P" selected>Carp Probability</option>
+                                <option value="Perimeter">Perimeter (km)</option>
+                                <option value="Cohesion_J">Cohesion</option>
+                                <option value="Proximity_">Proximity</option>
+                                <option value="Exchange_J">Exchange</option>
+                                <option value="Dispersion">Dispersion</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Timing">Timing</option>
+                                <option value="Recurrence">Recurrence</option>
+                                <option value="Seasonality">Seasonality</option>
+                                <option value="Width_km">Width (km)</option>
+                                <option value="Length_km">Length (km)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 10px; color: #666; font-weight: 600; display: block; margin-bottom: 4px;">Variable Y (Vertical)</label>
+                            <select id="relationshipVarY" class="metric-select">
+                                <option value="AREASQKM" selected>Area (km²)</option>
+                                <option value="Carp_P">Carp Probability</option>
+                                <option value="Perimeter">Perimeter (km)</option>
+                                <option value="Cohesion_J">Cohesion</option>
+                                <option value="Proximity_">Proximity</option>
+                                <option value="Exchange_J">Exchange</option>
+                                <option value="Dispersion">Dispersion</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Timing">Timing</option>
+                                <option value="Recurrence">Recurrence</option>
+                                <option value="Seasonality">Seasonality</option>
+                                <option value="Width_km">Width (km)</option>
+                                <option value="Length_km">Length (km)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="position: relative; height: 280px; margin-bottom: 12px;">
+                        <canvas id="relationshipChart"></canvas>
+                    </div>
+                    
+                    <!-- Correlation Coefficient Display -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="background: #f5f5f5; padding: 10px; border-radius: 4px; text-align: center;">
+                            <div style="color: #666; font-weight: 600; font-size: 11px;">Pearson Correlation</div>
+                            <div style="color: #333; font-size: 18px; font-weight: 700; margin-top: 4px;" id="correlationValue">—</div>
+                        </div>
+                        <div style="background: #f5f5f5; padding: 10px; border-radius: 4px; text-align: center;">
+                            <div style="color: #666; font-weight: 600; font-size: 11px;">Strength</div>
+                            <div style="color: #333; font-size: 13px; font-weight: 600; margin-top: 4px;" id="correlationStrength">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variable Distribution Histogram -->
+                <div class="analysis-section">
+                    <div class="analysis-title">📈 Variable Distribution</div>
+                    <div style="font-size: 11px; color: #666; margin-bottom: 10px;">Select a variable to view its distribution across all lakes</div>
+                    
+                    <select id="histogramMetric" class="metric-select" style="margin-bottom: 12px;">
+                        <option value="Carp_P">Carp Probability</option>
+                        <option value="AREASQKM">Area (km²)</option>
+                        <option value="Perimeter">Perimeter (km)</option>
+                        <option value="Cohesion_J">Cohesion</option>
+                        <option value="Proximity_">Proximity</option>
+                        <option value="Exchange_J">Exchange</option>
+                        <option value="Dispersion">Dispersion</option>
+                        <option value="Duration">Duration</option>
+                        <option value="Timing">Timing</option>
+                        <option value="Recurrence">Recurrence</option>
+                        <option value="Seasonality">Seasonality</option>
+                        <option value="Width_km">Width (km)</option>
+                        <option value="Length_km">Length (km)</option>
+                    </select>
+                    
+                    <!-- Histogram Canvas -->
+                    <div style="position: relative; height: 280px; margin-bottom: 12px;">
+                        <canvas id="histogramChart"></canvas>
+                    </div>
+                </div>
+            </div>  <!-- End visualization-tab -->
+        </div>  <!-- End sidebar -->
+
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="basemap-selector">
+                <div class="basemap-title">🗺️ Map Style</div>
+                <div class="basemap-options">
+                    <button class="basemap-button active" data-basemap="openstreetmap">OpenStreetMap</button>
+                    <button class="basemap-button" data-basemap="satellite">Satellite</button>
+                    <button class="basemap-button" data-basemap="terrain">Terrain</button>
+                    <button class="basemap-button" data-basemap="dark">Dark Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <script>
+        let map;
+        let geoJsonLayer;
+        let lakeFeatures = [];
+        let filteredFeatures = [];
+        let currentBasemapLayer;
+
+        // Basemap definitions
+        const basemaps = {
+            openstreetmap: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri',
+                maxZoom: 19
+            }),
+            terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenTopoMap',
+                maxZoom: 19
+            }),
+            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© CartoDB',
+                maxZoom: 19
+            })
+        };
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([30.65, -91.35], 8);
+
+            // Add default basemap
+            currentBasemapLayer = basemaps.openstreetmap;
+            currentBasemapLayer.addTo(map);
+        }
+
+        // Switch basemap
+        function switchBasemap(basemapType) {
+            // Remove current basemap
+            if (currentBasemapLayer) {
+                map.removeLayer(currentBasemapLayer);
+            }
+
+            // Add new basemap
+            currentBasemapLayer = basemaps[basemapType];
+            currentBasemapLayer.addTo(map);
+
+            // Update active button
+            document.querySelectorAll('.basemap-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-basemap="${basemapType}"]`).classList.add('active');
+        }
+
+        // Add basemap button event listeners
+        document.querySelectorAll('.basemap-button').forEach(button => {
+            button.addEventListener('click', function() {
+                switchBasemap(this.dataset.basemap);
+            });
+        });
+
+        // Load and display GeoJSON
+        async function loadGeoJSON() {
+            try {
+                const response = await fetch('df_merged_arcgis.geojson');
+                const data = await response.json();
+                
+                lakeFeatures = data.features;
+                filteredFeatures = [...lakeFeatures];
+
+                // Create GeoJSON layer with styling
+                geoJsonLayer = L.geoJSON(data, {
+                    style: getPolygonStyle,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+
+                // Update UI
+                updateStats();
+                renderLakesList();
+                populateMetricsDropdown();
+                attachMetricListeners();
+                createRadarCharts();
+                createHistogram('Carp_P');
+                createRelationshipChart('Carp_P', 'AREASQKM');
+                updateHistogramListener();
+                updateBoxplotListener();
+                updateTopLakesListener();
+                updateRelationshipListeners();
+
+                // Fit map to bounds
+                if (geoJsonLayer.getBounds().isValid()) {
+                    map.fitBounds(geoJsonLayer.getBounds(), { padding: [50, 50] });
+                }
+            } catch (error) {
+                console.error('Error loading GeoJSON:', error);
+                alert('Error loading GeoJSON file. Make sure "df_merged_arcgis.geojson" is in the same directory.');
+            }
+        }
+
+        // Polygon styling
+        function getPolygonStyle(feature) {
+            return {
+                fillColor: '#4285F4',
+                weight: 2,
+                opacity: 0.8,
+                color: '#333',
+                fillOpacity: 0.6,
+                dashArray: '0'
+            };
+        }
+
+        // Handle each feature
+        function onEachFeature(feature, layer) {
+            const props = feature.properties;
+
+            // Create popup content
+            let popupHTML = `<div style="max-width: 320px; font-size: 12px;">`;
+            
+            // Lake name and ID with header styling
+            const lakeName = props.Name || 'Unnamed Lake';
+            popupHTML += `<div class="popup-header">
+                <div class="popup-lake-name">${lakeName}</div>
+                <div class="popup-lake-id">Lake ID: ${props.FIRST_OBJE}</div>
+            </div>`;
+            
+            // Add to Comparison Button - RIGHT AT TOP FOR VISIBILITY
+            popupHTML += `<div style="padding: 8px 0; text-align: center;">
+                <button onclick="window.addToComparisonById('${props.FIRST_OBJE}');" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; width: 100%; transition: all 0.3s ease;">➕ Add to Comparison</button>
+            </div>`;
+
+            // Location
+            popupHTML += `<div class="popup-section">
+                <div class="popup-section-title">📍 Location</div>
+                <div class="popup-row">
+                    <span class="popup-label">Latitude:</span>
+                    <span class="popup-value">${(props.lat || 0).toFixed(4)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Longitude:</span>
+                    <span class="popup-value">${(props.long || 0).toFixed(4)}</span>
+                </div>
+            </div>`;
+
+            // Morphometry
+            popupHTML += `<div class="popup-section">
+                <div class="popup-section-title">📐Lake Morphometry</div>
+                <div class="popup-row">
+                    <span class="popup-label">Area (km²):</span>
+                    <span class="popup-value">${(props.AREASQKM || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Perimeter (km):</span>
+                    <span class="popup-value">${(props.Perimeter || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Width (km):</span>
+                    <span class="popup-value">${(props.Width_km || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Length (km):</span>
+                    <span class="popup-value">${(props.Length_km || 0).toFixed(2)}</span>
+                </div>
+            </div>`;
+
+            // Connectivity Metrics - Structural
+            popupHTML += `<div class="popup-section">
+                <div class="popup-section-title">📐 More Lake Morphometry </div>
+                <div class="popup-row">
+                    <span class="popup-label">Cohesion:</span>
+                    <span class="popup-value">${(props.Cohesion_J || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Proximity:</span>
+                    <span class="popup-value">${(props.Proximity_ || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Exchange:</span>
+                    <span class="popup-value">${(props.Exchange_J || 0).toFixed(0)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Dispersion:</span>
+                    <span class="popup-value">${(props.Dispersion || 0).toFixed(2)}</span>
+                </div>
+            </div>`;
+
+            // Connectivity Metrics - Temporal
+            popupHTML += `<div class="popup-section">
+                <div class="popup-section-title">⏱️ Temporal Connectivity</div>
+                <div class="popup-row">
+                    <span class="popup-label">Duration:</span>
+                    <span class="popup-value">${(props.Duration || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Timing:</span>
+                    <span class="popup-value">${(props.Timing || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Recurrence:</span>
+                    <span class="popup-value">${(props.Recurrence || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Seasonality:</span>
+                    <span class="popup-value">${(props.Seasonality || 0).toFixed(2)}</span>
+                </div>
+            </div>`;
+
+            // Connectivity Metrics - Hydrological
+            if (props.Dry_season !== undefined || props.Wet_season !== undefined || props.Continuance !== undefined || props.Disconnectedness !== undefined) {
+                popupHTML += `<div class="popup-section">
+                    <div class="popup-section-title">🌊 Seasonal Hydrological Connectivity</div>
+                    ${props.Dry_season !== undefined ? `<div class="popup-row"><span class="popup-label">Dry Season:</span><span class="popup-value">${(props.Dry_season || 0).toFixed(2)}</span></div>` : ''}
+                    ${props.Wet_season !== undefined ? `<div class="popup-row"><span class="popup-label">Wet Season:</span><span class="popup-value">${(props.Wet_season || 0).toFixed(2)}</span></div>` : ''}
+                    ${props.Continuance !== undefined ? `<div class="popup-row"><span class="popup-label">Continuance:</span><span class="popup-value">${(props.Continuance || 0).toFixed(2)}</span></div>` : ''}
+                    ${props.Disconnectedness !== undefined ? `<div class="popup-row"><span class="popup-label">Disconnectedness:</span><span class="popup-value">${(props.Disconnectedness || 0).toFixed(2)}</span></div>` : ''}
+                </div>`;
+            }
+
+            // Connectivity Metrics - Seasonal Timing
+            if (props.Timing_L !== undefined || props.Timing_H !== undefined) {
+                popupHTML += `<div class="popup-section">
+                    <div class="popup-section-title">📅 Connectivity during Low and High Flows</div>
+                    ${props.Timing_L !== undefined ? `<div class="popup-row"><span class="popup-label">Timing (Low):</span><span class="popup-value">${(props.Timing_L || 0).toFixed(2)}</span></div>` : ''}
+                    ${props.Timing_H !== undefined ? `<div class="popup-row"><span class="popup-label">Timing (High):</span><span class="popup-value">${(props.Timing_H || 0).toFixed(2)}</span></div>` : ''}
+                </div>`;
+            }
+
+            // Carp Probability
+            const carpProb = parseFloat(props.Carp_P) || 0;
+            let carpColor = '#34A048';
+            let carpStatus = 'Absence';
+            if (carpProb === 1) {
+                carpColor = '#EA4335';
+                carpStatus = 'Presence';
+            } else {
+                carpColor = '#34A048';
+                carpStatus = 'Absence';
+            }
+
+            popupHTML += `<div class="popup-section">
+                <div class="popup-section-title">🎯 Carp Risk Assessment</div>
+                <div class="popup-row">
+                    <span class="popup-label">Carp Status:</span>
+                    <span class="popup-value" style="color: ${carpColor}; font-weight: 700;">${carpStatus}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Value:</span>
+                    <span class="popup-value">${carpProb === 1 ? 'Present' : 'Absent'}</span>
+                </div>
+            </div>`;
+
+            // Hydrology
+            if (props.Duration || props.Recurrence || props.Seasonality) {
+                popupHTML += `<div class="popup-section">
+                    <div class="popup-section-title">💧 Hydrology</div>
+                    ${props.Duration ? `<div class="popup-row"><span class="popup-label">Duration:</span><span class="popup-value">${props.Duration.toFixed(2)}</span></div>` : ''}
+                    ${props.Recurrence ? `<div class="popup-row"><span class="popup-label">Recurrence:</span><span class="popup-value">${props.Recurrence.toFixed(2)}</span></div>` : ''}
+                    ${props.Seasonality ? `<div class="popup-row"><span class="popup-label">Seasonality:</span><span class="popup-value">${props.Seasonality.toFixed(2)}</span></div>` : ''}
+                </div>`;
+            }
+
+            popupHTML += `</div>`;
+
+            layer.bindPopup(popupHTML);
+
+            // Highlight on hover
+            layer.on('mouseover', function() {
+                this.setStyle({
+                    weight: 3,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
+            });
+
+            layer.on('mouseout', function() {
+                const originalStyle = getPolygonStyle(feature);
+                this.setStyle(originalStyle);
+            });
+
+            layer.on('click', function() {
+                highlightLakeInList(props.FIRST_OBJE);
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalCount').textContent = lakeFeatures.length;
+            document.getElementById('displayCount').textContent = filteredFeatures.length;
+            
+            // Calculate average area
+            const totalArea = filteredFeatures.reduce((sum, f) => sum + (f.properties.AREASQKM || 0), 0);
+            const avgArea = filteredFeatures.length > 0 ? (totalArea / filteredFeatures.length).toFixed(1) : 0;
+            document.getElementById('avgArea').textContent = avgArea + ' km²';
+        }
+
+        // Render lakes list
+        function renderLakesList() {
+            const list = document.getElementById('lakesList');
+            list.innerHTML = '';
+
+            filteredFeatures.forEach(feature => {
+                const props = feature.properties;
+                const div = document.createElement('div');
+                div.className = 'lake-item';
+                div.dataset.id = props.FIRST_OBJE;
+                
+                const name = props.Name || 'Unnamed Lake';
+                const area = (props.AREASQKM || 0).toFixed(2);
+                const carp = props.carp_estimated || 0;
+                
+                // Determine carp risk level
+                let riskLevel = 'Low';
+                let riskColor = '#34A048';
+                if (carp <= 2) {
+                    riskLevel = 'Low';
+                    riskColor = '#34A048';
+                } else if (carp <= 4) {
+                    riskLevel = 'Moderate';
+                    riskColor = '#FBBC04';
+                } else if (carp <= 6) {
+                    riskLevel = 'High';
+                    riskColor = '#EA4335';
+                } else {
+                    riskLevel = 'Critical';
+                    riskColor = '#800000';
+                }
+
+                div.innerHTML = `
+                    <div class="lake-name">${name}</div>
+                    <div class="lake-id">ID: ${props.FIRST_OBJE}</div>
+                    <div class="lake-info">
+                        <div class="lake-badge">📏 ${area} km²</div>
+                        <div class="lake-badge" style="background: ${riskColor}20; color: ${riskColor}; font-weight: 600;">🎯 ${riskLevel}</div>
+                    </div>
+                `;
+
+                div.addEventListener('click', () => {
+                    highlightAndZoomToLake(props.FIRST_OBJE);
+                });
+
+                list.appendChild(div);
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+
+            if (!query) {
+                filteredFeatures = [...lakeFeatures];
+            } else {
+                filteredFeatures = lakeFeatures.filter(feature => {
+                    const props = feature.properties;
+                    const name = (props.Name || '').toLowerCase();
+                    const id = (props.FIRST_OBJE || '').toString().toLowerCase();
+                    return name.includes(query) || id.includes(query);
+                });
+            }
+
+            updateStats();
+            renderLakesList();
+        });
+
+        // Highlight lake in list
+        function highlightLakeInList(lakeId) {
+            document.querySelectorAll('.lake-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const item = document.querySelector(`[data-id="${lakeId}"]`);
+            if (item) {
+                item.classList.add('active');
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // Highlight and zoom to lake
+        function highlightAndZoomToLake(lakeId) {
+            const feature = lakeFeatures.find(f => f.properties.FIRST_OBJE === lakeId);
+            if (!feature) return;
+
+            highlightLakeInList(lakeId);
+
+            // Zoom to bounds
+            if (feature.geometry.type === 'Polygon') {
+                const coords = feature.geometry.coordinates[0];
+                const bounds = L.latLngBounds(
+                    coords.map(([lng, lat]) => [lat, lng])
+                );
+                map.fitBounds(bounds, { padding: [50, 350] });
+            }
+
+            // Find and click the layer
+            geoJsonLayer.eachLayer((layer) => {
+                if (layer.feature.properties.FIRST_OBJE === lakeId) {
+                    layer.openPopup();
+                }
+            });
+        }
+
+        // Funding toggle
+        document.getElementById('fundingToggle').addEventListener('click', function() {
+            const panel = document.getElementById('fundingPanel');
+            const papersPanel = document.getElementById('papersPanel');
+            const descPanel = document.getElementById('descPanel');
+            const devPanel = document.getElementById('devPanel');
+            const papersButton = document.getElementById('papersToggle');
+            const descButton = document.getElementById('descToggle');
+            const devButton = document.getElementById('devToggle');
+            
+            panel.classList.toggle('expanded');
+            this.classList.toggle('expanded');
+            
+            // Close other panels if open
+            if (papersPanel.classList.contains('expanded')) {
+                papersPanel.classList.remove('expanded');
+                papersButton.classList.remove('expanded');
+            }
+            if (descPanel.classList.contains('expanded')) {
+                descPanel.classList.remove('expanded');
+                descButton.classList.remove('expanded');
+            }
+            if (devPanel.classList.contains('expanded')) {
+                devPanel.classList.remove('expanded');
+                devButton.classList.remove('expanded');
+            }
+        });
+
+        // Papers toggle
+        document.getElementById('papersToggle').addEventListener('click', function() {
+            const panel = document.getElementById('papersPanel');
+            const fundingPanel = document.getElementById('fundingPanel');
+            const descPanel = document.getElementById('descPanel');
+            const devPanel = document.getElementById('devPanel');
+            const fundingButton = document.getElementById('fundingToggle');
+            const descButton = document.getElementById('descToggle');
+            const devButton = document.getElementById('devToggle');
+            
+            panel.classList.toggle('expanded');
+            this.classList.toggle('expanded');
+            
+            // Close other panels if open
+            if (fundingPanel.classList.contains('expanded')) {
+                fundingPanel.classList.remove('expanded');
+                fundingButton.classList.remove('expanded');
+            }
+            if (descPanel.classList.contains('expanded')) {
+                descPanel.classList.remove('expanded');
+                descButton.classList.remove('expanded');
+            }
+            if (devPanel.classList.contains('expanded')) {
+                devPanel.classList.remove('expanded');
+                devButton.classList.remove('expanded');
+            }
+        });
+
+        // Description toggle
+        document.getElementById('descToggle').addEventListener('click', function() {
+            const panel = document.getElementById('descPanel');
+            const fundingPanel = document.getElementById('fundingPanel');
+            const papersPanel = document.getElementById('papersPanel');
+            const devPanel = document.getElementById('devPanel');
+            const fundingButton = document.getElementById('fundingToggle');
+            const papersButton = document.getElementById('papersToggle');
+            const devButton = document.getElementById('devToggle');
+            
+            panel.classList.toggle('expanded');
+            this.classList.toggle('expanded');
+            
+            // Close other panels if open
+            if (fundingPanel.classList.contains('expanded')) {
+                fundingPanel.classList.remove('expanded');
+                fundingButton.classList.remove('expanded');
+            }
+            if (papersPanel.classList.contains('expanded')) {
+                papersPanel.classList.remove('expanded');
+                papersButton.classList.remove('expanded');
+            }
+            if (devPanel.classList.contains('expanded')) {
+                devPanel.classList.remove('expanded');
+                devButton.classList.remove('expanded');
+            }
+        });
+
+        // Developer toggle
+        document.getElementById('devToggle').addEventListener('click', function() {
+            const panel = document.getElementById('devPanel');
+            const fundingPanel = document.getElementById('fundingPanel');
+            const papersPanel = document.getElementById('papersPanel');
+            const descPanel = document.getElementById('descPanel');
+            const fundingButton = document.getElementById('fundingToggle');
+            const papersButton = document.getElementById('papersToggle');
+            const descButton = document.getElementById('descToggle');
+            
+            panel.classList.toggle('expanded');
+            this.classList.toggle('expanded');
+            
+            // Close other panels if open
+            if (fundingPanel.classList.contains('expanded')) {
+                fundingPanel.classList.remove('expanded');
+                fundingButton.classList.remove('expanded');
+            }
+            if (papersPanel.classList.contains('expanded')) {
+                papersPanel.classList.remove('expanded');
+                papersButton.classList.remove('expanded');
+            }
+            if (descPanel.classList.contains('expanded')) {
+                descPanel.classList.remove('expanded');
+                descButton.classList.remove('expanded');
+            }
+        });
+
+        // ========== ADVANCED ANALYSIS FEATURES ==========
+
+        // Tab Switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Populate metrics dropdown dynamically
+        function populateMetricsDropdown() {
+            if (lakeFeatures.length === 0) return;
+            
+            // Get all unique keys from properties
+            const allKeys = new Set();
+            lakeFeatures.forEach(f => {
+                Object.keys(f.properties).forEach(key => {
+                    // Filter out text and ID fields
+                    if (typeof f.properties[key] === 'number' && key !== 'FIRST_OBJE' && key !== 'OBJECTID') {
+                        allKeys.add(key);
+                    }
+                });
+            });
+            
+            // Sort keys and populate dropdowns
+            const sortedKeys = Array.from(allKeys).sort();
+            const metricSelect = document.getElementById('metricSelect');
+            const heatmapMetric = document.getElementById('heatmapMetric');
+            
+            // Clear existing options except first
+            metricSelect.innerHTML = '';
+            heatmapMetric.innerHTML = '';
+            
+            sortedKeys.forEach(key => {
+                const option1 = document.createElement('option');
+                option1.value = key;
+                option1.textContent = key.replace(/_/g, ' ');
+                metricSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = key;
+                option2.textContent = key.replace(/_/g, ' ');
+                heatmapMetric.appendChild(option2);
+            });
+            
+            // Trigger initial stats update
+            updateStatistics();
+        }
+
+        // Calculate Statistics
+        function calculateStats(values) {
+            if (values.length === 0) return { min: 0, max: 0, mean: 0, std: 0 };
+            
+            const validValues = values.filter(v => !isNaN(v) && isFinite(v));
+            if (validValues.length === 0) return { min: 0, max: 0, mean: 0, std: 0 };
+            
+            const min = Math.min(...validValues);
+            const max = Math.max(...validValues);
+            const mean = validValues.reduce((a, b) => a + b, 0) / validValues.length;
+            const variance = validValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / validValues.length;
+            const std = Math.sqrt(variance);
+            
+            return { min: min.toFixed(2), max: max.toFixed(2), mean: mean.toFixed(2), std: std.toFixed(2) };
+        }
+
+        // Update Statistics Display
+        function updateStatistics() {
+            const metric = document.getElementById('metricSelect').value;
+            const values = filteredFeatures
+                .map(f => parseFloat(f.properties[metric]) || 0);
+            
+            const stats = calculateStats(values);
+            document.getElementById('minValue').textContent = stats.min;
+            document.getElementById('maxValue').textContent = stats.max;
+            document.getElementById('meanValue').textContent = stats.mean;
+            document.getElementById('stdValue').textContent = stats.std;
+        }
+
+        function exportToCSV() {
+            if (filteredFeatures.length === 0) {
+                alert('No lakes to export. Please search or filter the data first.');
+                return;
+            }
+            
+            // Get all numeric columns
+            const sampleProps = filteredFeatures[0].properties;
+            const numericKeys = Object.keys(sampleProps)
+                .filter(k => typeof sampleProps[k] === 'number')
+                .sort();
+            
+            const headers = ['Lake ID', 'Name', ...numericKeys];
+            const rows = filteredFeatures.map(f => [
+                f.properties.FIRST_OBJE,
+                f.properties.Name || 'Unnamed',
+                ...numericKeys.map(k => f.properties[k] || '')
+            ]);
+            
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `MAV_Lakes_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Attach change listener when dropdown is populated
+        function attachMetricListeners() {
+            document.getElementById('metricSelect').addEventListener('change', updateStatistics);
+            document.getElementById('applyHeatmapBtn').addEventListener('click', function() {
+                const metric = document.getElementById('heatmapMetric').value;
+                applyHeatmap(metric);
+            });
+            document.getElementById('resetHeatmapBtn').addEventListener('click', function() {
+                resetHeatmap();
+            });
+            document.getElementById('exportCSVBtn').addEventListener('click', exportToCSV);
+        }
+
+        // Multi-Lake Comparison - with Variable Selection
+        let selectedLakes = [];
+        let comparisonVariables = [
+            { field: 'AREASQKM', label: 'Area (km²)', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'carp_estim', label: 'Carp Risk', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Perimeter', label: 'Perimeter (km)', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Cohesion_J', label: 'Cohesion', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Proximity_', label: 'Proximity', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Exchange_J', label: 'Exchange', format: (v) => parseFloat(v || 0).toFixed(0) },
+            { field: 'Dispersion', label: 'Dispersion', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Duration', label: 'Duration', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Timing', label: 'Timing', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Recurrence', label: 'Recurrence', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Seasonality', label: 'Seasonality', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Width_km', label: 'Width (km)', format: (v) => parseFloat(v || 0).toFixed(2) },
+            { field: 'Length_km', label: 'Length (km)', format: (v) => parseFloat(v || 0).toFixed(2) }
+        ];
+        
+        // Initialize checkboxes and track selected variables
+        function initComparisonVariableSelectors() {
+            const checkboxes = document.querySelectorAll('input[name="compVar"]');
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', updateComparisonTable);
+            });
+        }
+        
+        function getSelectedComparisonVariables() {
+            const checkboxes = document.querySelectorAll('input[name="compVar"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+        
+        function updateComparisonTable() {
+            displayComparisonUI();
+        }
+
+        function addToComparisonById(lakeId) {
+            console.log('=== ADD TO COMPARISON ===');
+            console.log('Lake ID:', lakeId);
+            console.log('lakeFeatures available:', lakeFeatures && lakeFeatures.length);
+            
+            if (!lakeFeatures || lakeFeatures.length === 0) {
+                alert('Map data not loaded yet.');
+                return;
+            }
+            
+            const feature = lakeFeatures.find(f => f.properties.FIRST_OBJE == lakeId);
+            if (!feature) {
+                alert('Lake not found.');
+                console.error('Lake not found with ID:', lakeId);
+                return;
+            }
+            
+            const lakeName = feature.properties.Name || 'Unnamed';
+            const alreadySelected = selectedLakes.some(l => l.properties.FIRST_OBJE == lakeId);
+            
+            if (alreadySelected) {
+                selectedLakes = selectedLakes.filter(l => l.properties.FIRST_OBJE != lakeId);
+                alert(`${lakeName} removed from comparison`);
+                console.log('Removed lake:', lakeName);
+            } else {
+                selectedLakes.push(feature);
+                if (selectedLakes.length > 5) selectedLakes.shift();
+                alert(`${lakeName} added to comparison (${selectedLakes.length}/5)`);
+                console.log('Added lake:', lakeName, 'Total:', selectedLakes.length);
+            }
+            
+            displayComparisonUI();
+        }
+
+        function displayComparisonUI() {
+            console.log('=== DISPLAY COMPARISON UI ===');
+            console.log('Selected lakes:', selectedLakes.length);
+            
+            const listContainer = document.getElementById('comparisonList');
+            const tableContainer = document.getElementById('comparisonTable');
+            const tableHead = document.getElementById('comparisonTableHead');
+            const tbody = document.getElementById('comparisonBody');
+            const variableSelector = document.getElementById('variableSelectorContainer');
+            
+            if (!listContainer || !tableContainer || !tbody) {
+                console.error('UI elements not found');
+                return;
+            }
+            
+            // Clear previous content
+            listContainer.innerHTML = '';
+            tbody.innerHTML = '';
+            
+            if (selectedLakes.length === 0) {
+                listContainer.innerHTML = '<div style="padding: 12px; text-align: center; color: #999;">No lakes selected</div>';
+                tableContainer.style.display = 'none';
+                if (variableSelector) variableSelector.style.display = 'none';
+                console.log('No lakes to display');
+                return;
+            }
+            
+            // Show variable selector when lakes are selected
+            if (variableSelector) variableSelector.style.display = 'block';
+            
+            // Show list of selected lakes
+            selectedLakes.forEach((lake, idx) => {
+                const nameBadge = document.createElement('div');
+                nameBadge.className = 'selection-item';
+                nameBadge.innerHTML = `<strong>${idx + 1}.</strong> ${lake.properties.Name || 'Unnamed'}`;
+                nameBadge.style.cursor = 'pointer';
+                nameBadge.style.marginBottom = '6px';
+                nameBadge.title = 'Click to remove';
+                nameBadge.addEventListener('click', function() {
+                    selectedLakes = selectedLakes.filter(l => l.properties.FIRST_OBJE != lake.properties.FIRST_OBJE);
+                    displayComparisonUI();
+                });
+                listContainer.appendChild(nameBadge);
+            });
+            
+            // Get selected variables from checkboxes
+            const selectedVars = getSelectedComparisonVariables();
+            console.log('Selected variables:', selectedVars);
+            
+            if (selectedVars.length === 0) {
+                tableContainer.style.display = 'none';
+                console.log('No variables selected for comparison');
+                return;
+            }
+            
+            // Build table header dynamically
+            const headerRow = document.createElement('tr');
+            const nameHeader = document.createElement('th');
+            nameHeader.textContent = 'Lake Name';
+            headerRow.appendChild(nameHeader);
+            
+            selectedVars.forEach(varField => {
+                const varConfig = comparisonVariables.find(v => v.field === varField);
+                if (varConfig) {
+                    const header = document.createElement('th');
+                    header.textContent = varConfig.label;
+                    headerRow.appendChild(header);
+                }
+            });
+            
+            tableHead.innerHTML = '';
+            tableHead.appendChild(headerRow);
+            
+            // Build table rows with selected variables
+            selectedLakes.forEach(lake => {
+                const row = document.createElement('tr');
+                const props = lake.properties;
+                
+                const nameCell = document.createElement('td');
+                nameCell.innerHTML = `<strong>${props.Name || 'Unnamed'}</strong>`;
+                row.appendChild(nameCell);
+                
+                selectedVars.forEach(varField => {
+                    const varConfig = comparisonVariables.find(v => v.field === varField);
+                    const cell = document.createElement('td');
+                    if (varConfig) {
+                        const value = props[varField];
+                        cell.textContent = varConfig.format(value);
+                    }
+                    row.appendChild(cell);
+                });
+                
+                tbody.appendChild(row);
+            });
+            
+            // Show table
+            tableContainer.style.display = 'table';
+            console.log('UI updated with', selectedLakes.length, 'lakes and', selectedVars.length, 'variables');
+        }
+
+        // Heat Map Visualization with Colorbar
+        let currentHeatmapMetric = 'carp_estim';
+        let isHeatmapActive = false;
+        let currentHeatmapMin = 0;
+        let currentHeatmapMax = 100;
+
+        function getHeatmapColor(normalized) {
+            // Color gradient: blue -> green -> yellow -> orange -> red
+            if (normalized < 0.2) {
+                return `rgb(0, 0, 255)`; // Blue
+            } else if (normalized < 0.4) {
+                const t = (normalized - 0.2) / 0.2;
+                return `rgb(0, ${Math.round(255 * t)}, ${Math.round(255 * (1 - t))})`; // Blue to Green
+            } else if (normalized < 0.6) {
+                const t = (normalized - 0.4) / 0.2;
+                return `rgb(${Math.round(255 * t)}, 255, 0)`; // Green to Yellow
+            } else if (normalized < 0.8) {
+                const t = (normalized - 0.6) / 0.2;
+                return `rgb(255, ${Math.round(255 * (1 - t))}, 0)`; // Yellow to Orange
+            } else {
+                return `rgb(255, 0, 0)`; // Red
+            }
+        }
+
+        function updateColorbar(metric, min, max) {
+            const colorbarGradient = document.getElementById('colorbarGradient');
+            const colorbarTitle = document.getElementById('colorbarTitle');
+            const colorbarMin = document.getElementById('colorbarMin');
+            const colorbarMax = document.getElementById('colorbarMax');
+            
+            if (!colorbarGradient) return;
+            
+            // Create gradient stops
+            let gradientStops = [];
+            for (let i = 0; i <= 100; i += 10) {
+                const normalized = i / 100;
+                const color = getHeatmapColor(normalized);
+                gradientStops.push(`${color} ${i}%`);
+            }
+            
+            // Apply gradient to colorbar
+            colorbarGradient.style.background = `linear-gradient(to right, ${gradientStops.join(', ')})`;
+            
+            // Update labels
+            const metricLabel = metric.replace(/_/g, ' ');
+            colorbarTitle.textContent = `${metricLabel} (Low → High)`;
+            colorbarMin.textContent = min.toFixed(2);
+            colorbarMax.textContent = max.toFixed(2);
+        }
+
+        function applyHeatmap(metric) {
+            if (!geoJsonLayer) {
+                alert('Map data not loaded yet. Please wait a moment and try again.');
+                return;
+            }
+            
+            currentHeatmapMetric = metric;
+            const values = lakeFeatures
+                .map(f => parseFloat(f.properties[metric]) || 0)
+                .filter(v => !isNaN(v) && isFinite(v) && v >= 0);
+            
+            if (values.length === 0) {
+                alert('No valid data found for this metric.');
+                return;
+            }
+            
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+            const range = max - min === 0 ? 1 : max - min;
+            
+            currentHeatmapMin = min;
+            currentHeatmapMax = max;
+            
+            // Update all layers with heatmap colors
+            geoJsonLayer.eachLayer(layer => {
+                const value = parseFloat(layer.feature.properties[metric]) || 0;
+                let normalized = (value - min) / range;
+                normalized = Math.min(1, Math.max(0, normalized)); // Clamp to 0-1
+                
+                const color = getHeatmapColor(normalized);
+                layer.setStyle({ fillColor: color, fillOpacity: 0.7 });
+            });
+            
+            // Show and update colorbar
+            updateColorbar(metric, min, max);
+            const colorbarContainer = document.getElementById('colorbarContainer');
+            if (colorbarContainer) colorbarContainer.classList.add('active');
+            
+            isHeatmapActive = true;
+            console.log(`Heat map applied for "${metric.replace(/_/g, ' ')}" (${min.toFixed(2)} to ${max.toFixed(2)})`);
+        }
+
+        function resetHeatmap() {
+            if (!geoJsonLayer) return;
+            
+            isHeatmapActive = false;
+            geoJsonLayer.eachLayer(layer => {
+                const style = getPolygonStyle(layer.feature);
+                layer.setStyle(style);
+            });
+            
+            // Hide colorbar
+            const colorbarContainer = document.getElementById('colorbarContainer');
+            if (colorbarContainer) colorbarContainer.classList.remove('active');
+            
+            console.log('Heat map reset to default carp risk coloring');
+        }
+
+        // Old event listeners removed - handled by attachMetricListeners() now
+
+        // Lake Clustering (when zoomed out)
+        let clustersVisible = false;
+
+        function updateClusters() {
+            const zoom = map.getZoom();
+            if (zoom < 8 && !clustersVisible) {
+                // Create basic clusters when zoomed out
+                geoJsonLayer.eachLayer(layer => {
+                    if (layer.setIcon) {
+                        // This is a marker - style it for clustering
+                        layer.setIcon(L.icon({
+                            iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8" fill="%23667eea" stroke="white" stroke-width="2"/><text x="12" y="14" text-anchor="middle" fill="white" font-size="8" font-weight="bold">C</text></svg>',
+                            iconSize: [24, 24]
+                        }));
+                    }
+                });
+                clustersVisible = true;
+            } else if (zoom >= 8 && clustersVisible) {
+                // Reset to normal when zoomed in
+                geoJsonLayer.eachLayer(layer => {
+                    const style = getPolygonStyle(layer.feature);
+                    layer.setStyle(style);
+                });
+                clustersVisible = false;
+            }
+        }
+
+        // Visualization - Chart Instances
+        let radarChartInstance = null;
+        let scatterChartInstance = null;
+        let boxplotChartInstance = null;
+        let topLakesChartInstance = null;
+        let relationshipChartInstance = null;
+
+        function normalizeValue(value, min, max) {
+            if (max === min) return 0.5;
+            return (value - min) / (max - min);
+        }
+
+        function createRadarCharts() {
+            if (!lakeFeatures || lakeFeatures.length === 0) return;
+
+            // Calculate normalized values for connectivity metrics
+            const connectivityMetrics = ['Duration', 'Timing', 'Recurrence', 'Seasonality'];
+            const morphometryMetrics = ['AREASQKM', 'Perimeter', 'Width_km', 'Length_km'];
+
+            // Get min/max for each metric
+            const getMinMax = (fieldName) => {
+                const values = lakeFeatures
+                    .map(f => parseFloat(f.properties[fieldName]) || 0)
+                    .filter(v => !isNaN(v) && isFinite(v) && v >= 0);
+                return { min: Math.min(...values), max: Math.max(...values) };
+            };
+
+            // Create datasets for connectivity radar
+            const connectivityData = connectivityMetrics.map(metric => {
+                const { min, max } = getMinMax(metric);
+                return lakeFeatures.map(f => normalizeValue(parseFloat(f.properties[metric]) || 0, min, max));
+            });
+
+            // Create datasets for morphometry radar
+            const morphometryData = morphometryMetrics.map(metric => {
+                const { min, max } = getMinMax(metric);
+                return lakeFeatures.map(f => normalizeValue(parseFloat(f.properties[metric]) || 0, min, max));
+            });
+
+            // Generate colors for lakes (expanded palette for all lakes)
+            const colors = [
+                'rgb(102, 126, 234)', 'rgb(118, 75, 162)', 'rgb(237, 100, 166)',
+                'rgb(255, 154, 158)', 'rgb(250, 208, 124)', 'rgb(130, 204, 221)',
+                'rgb(255, 193, 7)', 'rgb(76, 175, 80)', 'rgb(244, 67, 54)', 'rgb(63, 81, 181)',
+                'rgb(103, 58, 183)', 'rgb(233, 30, 99)', 'rgb(0, 150, 136)', 'rgb(255, 87, 34)',
+                'rgb(156, 39, 176)', 'rgb(33, 150, 243)', 'rgb(0, 188, 212)', 'rgb(121, 134, 203)'
+            ];
+
+            // Connectivity Radar Chart
+            const radarCtx = document.getElementById('radarChart');
+            if (radarCtx && radarCtx.getContext) {
+                if (radarChartInstance) radarChartInstance.destroy();
+
+                radarChartInstance = new Chart(radarCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: connectivityMetrics,
+                        datasets: lakeFeatures.map((lake, idx) => ({
+                            label: lake.properties.Name || `Lake ${idx + 1}`,
+                            data: connectivityMetrics.map((metric, metricIdx) => connectivityData[metricIdx][idx]),
+                            borderColor: colors[idx % colors.length],
+                            backgroundColor: colors[idx % colors.length] + '33',
+                            fill: true,
+                            pointRadius: 3,
+                            pointBackgroundColor: colors[idx % colors.length]
+                        }))
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top', labels: { font: { size: 10 } } },
+                            title: { display: false }
+                        },
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 1,
+                                ticks: { callback: (v) => v.toFixed(1), font: { size: 9 } },
+                                grid: { color: 'rgba(200,200,200,0.2)' }
+                            }
+                        }
+                    }
+                });
+            }
+
+
+
+            console.log('Radar charts created successfully');
+            createScatterPlot();
+            createBoxPlot('carp_estim');
+            createTopLakesChart('AREASQKM');
+        }
+
+        // Scatter Plot: Area vs Carp Risk
+        function createScatterPlot() {
+            if (!lakeFeatures || lakeFeatures.length === 0) return;
+
+            const data = lakeFeatures.map(lake => ({
+                x: parseFloat(lake.properties.AREASQKM) || 0,
+                y: parseFloat(lake.properties.carp_estim) || 0,
+                label: lake.properties.Name
+            })).filter(d => d.x >= 0 && d.y >= 0);
+
+            const scatterCtx = document.getElementById('scatterChart');
+            if (scatterCtx && scatterCtx.getContext) {
+                if (scatterChartInstance) scatterChartInstance.destroy();
+
+                scatterChartInstance = new Chart(scatterCtx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Lakes',
+                            data: data,
+                            backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 1.5,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, labels: { font: { size: 10 } } },
+                            title: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: { display: true, text: 'Area (km²)', font: { size: 10 } },
+                                ticks: { font: { size: 9 } },
+                                grid: { color: 'rgba(200,200,200,0.2)' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Carp Risk Index', font: { size: 10 } },
+                                ticks: { font: { size: 9 } },
+                                grid: { color: 'rgba(200,200,200,0.2)' }
+                            }
+                        }
+                    }
+                });
+                console.log('Scatter plot created');
+            }
+        }
+
+        // Box Plot: Metric Distribution
+        function createBoxPlot(metricField = 'carp_estim') {
+            if (!lakeFeatures || lakeFeatures.length === 0) return;
+
+            const metricLabels = {
+                'carp_estim': 'Carp Risk Index',
+                'AREASQKM': 'Area (km²)',
+                'Perimeter': 'Perimeter (km)',
+                'Cohesion_J': 'Cohesion',
+                'Proximity_': 'Proximity',
+                'Duration': 'Duration',
+                'Seasonality': 'Seasonality'
+            };
+
+            const values = lakeFeatures
+                .map(f => parseFloat(f.properties[metricField]) || 0)
+                .filter(v => !isNaN(v) && isFinite(v) && v >= 0)
+                .sort((a, b) => a - b);
+
+            if (values.length === 0) return;
+
+            const q1Idx = Math.floor(values.length * 0.25);
+            const medianIdx = Math.floor(values.length * 0.5);
+            const q3Idx = Math.floor(values.length * 0.75);
+
+            const q1 = values[q1Idx];
+            const median = values[medianIdx];
+            const q3 = values[q3Idx];
+            const min = values[0];
+            const max = values[values.length - 1];
+
+            const boxplotCtx = document.getElementById('boxplotChart');
+            if (boxplotCtx && boxplotCtx.getContext) {
+                if (boxplotChartInstance) boxplotChartInstance.destroy();
+
+                // Create a bar chart showing quartile statistics
+                boxplotChartInstance = new Chart(boxplotCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Min', 'Q1', 'Median', 'Q3', 'Max'],
+                        datasets: [{
+                            label: metricLabels[metricField],
+                            data: [min, q1, median, q3, max],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(255, 159, 64, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(99, 132, 255, 0.6)',
+                                'rgba(155, 89, 182, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(99, 132, 255, 1)',
+                                'rgba(155, 89, 182, 1)'
+                            ],
+                            borderWidth: 1.5,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, labels: { font: { size: 10 } } }
+                        },
+                        scales: {
+                            y: {
+                                title: { display: true, text: metricLabels[metricField], font: { size: 10 } },
+                                ticks: { font: { size: 9 } },
+                                grid: { color: 'rgba(200,200,200,0.2)' }
+                            },
+                            x: {
+                                ticks: { font: { size: 9 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+                console.log('Box plot (quartile) created for', metricField);
+            }
+        }
+
+        // Top Lakes Bar Chart
+        function createTopLakesChart(metricField = 'AREASQKM') {
+            if (!lakeFeatures || lakeFeatures.length === 0) return;
+
+            const metricLabels = {
+                'AREASQKM': 'Area (km²)',
+                'carp_estim': 'Carp Risk Index',
+                'Cohesion_J': 'Cohesion',
+                'Proximity_': 'Proximity',
+                'Duration': 'Duration',
+                'Seasonality': 'Seasonality'
+            };
+
+            const lakesWithValues = lakeFeatures
+                .map(f => ({
+                    name: f.properties.Name || 'Unnamed',
+                    value: parseFloat(f.properties[metricField]) || 0
+                }))
+                .filter(l => l.value >= 0)
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 10);
+
+            if (lakesWithValues.length === 0) return;
+
+            const topLakesCtx = document.getElementById('topLakesChart');
+            if (topLakesCtx && topLakesCtx.getContext) {
+                if (topLakesChartInstance) topLakesChartInstance.destroy();
+
+                topLakesChartInstance = new Chart(topLakesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: lakesWithValues.map(l => l.name),
+                        datasets: [{
+                            label: metricLabels[metricField],
+                            data: lakesWithValues.map(l => l.value),
+                            backgroundColor: 'rgba(118, 75, 162, 0.6)',
+                            borderColor: 'rgba(118, 75, 162, 1)',
+                            borderWidth: 1.5,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, labels: { font: { size: 10 } } },
+                            title: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { font: { size: 9 } },
+                                grid: { color: 'rgba(200,200,200,0.2)' }
+                            },
+                            y: {
+                                ticks: { font: { size: 9 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+                console.log('Top lakes chart created for', metricField);
+            }
+        }
+
+        function updateBoxplotListener() {
+            const metricSelect = document.getElementById('boxplotMetric');
+            if (metricSelect) {
+                metricSelect.addEventListener('change', function() {
+                    createBoxPlot(this.value);
+                });
+            }
+        }
+
+        function updateTopLakesListener() {
+            const metricSelect = document.getElementById('topLakesMetric');
+            if (metricSelect) {
+                metricSelect.addEventListener('change', function() {
+                    createTopLakesChart(this.value);
+                });
+            }
+        }
+
+        // Relationship Analysis with Pearson Correlation
+        function calculatePearsonCorrelation(xValues, yValues) {
+            if (xValues.length !== yValues.length || xValues.length === 0) return 0;
+
+            const n = xValues.length;
+            const meanX = xValues.reduce((a, b) => a + b, 0) / n;
+            const meanY = yValues.reduce((a, b) => a + b, 0) / n;
+
+            const numerator = xValues.reduce((sum, x, i) => sum + (x - meanX) * (yValues[i] - meanY), 0);
+            const sumXVar = xValues.reduce((sum, x) => sum + Math.pow(x - meanX, 2), 0);
+            const sumYVar = yValues.reduce((sum, y) => sum + Math.pow(y - meanY, 2), 0);
+
+            const denominator = Math.sqrt(sumXVar * sumYVar);
+            if (denominator === 0) return 0;
+
+            return numerator / denominator;
+        }
+
+        function getCorrelationStrength(correlation) {
+            const absCorr = Math.abs(correlation);
+            if (absCorr < 0.3) return 'Very Weak';
+            if (absCorr < 0.5) return 'Weak';
+            if (absCorr < 0.7) return 'Moderate';
+            if (absCorr < 0.9) return 'Strong';
+            return 'Very Strong';
+        }
+
+        function createRelationshipChart(varX = 'carp_estim', varY = 'AREASQKM') {
+            if (!lakeFeatures || lakeFeatures.length === 0) return;
+
+            const metricLabels = {
+                'carp_estim': 'Carp Risk Index',
+                'AREASQKM': 'Area (km²)',
+                'Perimeter': 'Perimeter (km)',
+                'Cohesion_J': 'Cohesion',
+                'Proximity_': 'Proximity',
+                'Exchange_J': 'Exchange',
+                'Dispersion': 'Dispersion',
+                'Duration': 'Duration',
+                'Timing': 'Timing',
+                'Recurrence': 'Recurrence',
+                'Seasonality': 'Seasonality',
+                'Width_km': 'Width (km)',
+                'Length_km': 'Length (km)'
+            };
+
+            // Extract and filter data
+            const xValues = [];
+            const yValues = [];
+
+            lakeFeatures.forEach(lake => {
+                const x = parseFloat(lake.properties[varX]) || 0;
+                const y = parseFloat(lake.properties[varY]) || 0;
+                if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y) && x >= 0 && y >= 0) {
+                    xValues.push(x);
+                    yValues.push(y);
+                }
+            });
+
+            if (xValues.length === 0) return;
+
+            // Calculate Pearson correlation
+            const correlation = calculatePearsonCorrelation(xValues, yValues);
+            const strength = getCorrelationStrength(correlation);
+
+            // Update correlation display
+            document.getElementById('correlationValue').textContent = correlation.toFixed(3);
+            document.getElementById('correlationStrength').textContent = strength;
+
+            // Create scatter data
+            const scatterData = xValues.map((x, idx) => ({
+                x: x,
+                y: yValues[idx]
+            }));
+
+            // Create relationship chart
+            const relationshipCtx = document.getElementById('relationshipChart');
+            if (relationshipCtx && relationshipCtx.getContext) {
+                if (relationshipChartInstance) relationshipChartInstance.destroy();
+
+                relationshipChartInstance = new Chart(relationshipCtx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Lakes',
+                            data: scatterData,
+                            backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 1.5,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, labels: { font: { size: 10 } } },
+                            title: { 
+                                display: true, 
+                                text: `Pearson r = ${correlation.toFixed(3)} (${strength})`,
+                                font: { size: 11, weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'linear',
+                                position: 'bottom',
+                                title: { display: true, text: metricLabels[varX], font: { size: 10 } },
+                                ticks: { font: { size: 9 } },
+                                grid: { color: 'rgba(200,200,200,0.2)' }
+                            },
+                            y: {
+                                title: { display: true, text: metricLabels[varY], font: { size: 10 } },
+                                ticks: { font: { size: 9 } },
+                                grid: { color: 'rgba(200,200,200,0.2)' }
+                            }
+                        }
+                    }
+                });
+
+                console.log(`Relationship chart created: ${metricLabels[varX]} vs ${metricLabels[varY]}, r=${correlation.toFixed(3)}`);
+            }
+        }
+
+        function updateRelationshipListeners() {
+            const varXSelect = document.getElementById('relationshipVarX');
+            const varYSelect = document.getElementById('relationshipVarY');
+
+            if (varXSelect && varYSelect) {
+                const updateChart = () => {
+                    createRelationshipChart(varXSelect.value, varYSelect.value);
+                };
+
+                varXSelect.addEventListener('change', updateChart);
+                varYSelect.addEventListener('change', updateChart);
+            }
+        }
+
+        // Histogram for Variable Distribution
+        let histogramChartInstance = null;
+
+        function createHistogram(metricField = 'carp_estim') {
+            if (!lakeFeatures || lakeFeatures.length === 0) return;
+
+            // Get metric label
+            const metricLabels = {
+                'carp_estim': 'Carp Risk Index',
+                'AREASQKM': 'Area (km²)',
+                'Perimeter': 'Perimeter (km)',
+                'Cohesion_J': 'Cohesion',
+                'Proximity_': 'Proximity',
+                'Exchange_J': 'Exchange',
+                'Dispersion': 'Dispersion',
+                'Duration': 'Duration',
+                'Timing': 'Timing',
+                'Recurrence': 'Recurrence',
+                'Seasonality': 'Seasonality',
+                'Width_km': 'Width (km)',
+                'Length_km': 'Length (km)'
+            };
+
+            // Extract values
+            const values = lakeFeatures
+                .map(f => parseFloat(f.properties[metricField]) || 0)
+                .filter(v => !isNaN(v) && isFinite(v) && v >= 0)
+                .sort((a, b) => a - b);
+
+            if (values.length === 0) {
+                console.log('No valid data for metric:', metricField);
+                return;
+            }
+
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+
+            // Create bins for histogram (Sturges' rule)
+            const binCount = Math.ceil(Math.log2(values.length) + 1);
+            const binWidth = (max - min) / binCount;
+            const bins = Array(binCount).fill(0);
+            const binLabels = [];
+
+            values.forEach(val => {
+                let binIndex = Math.floor((val - min) / binWidth);
+                if (binIndex === binCount) binIndex--; // Handle edge case
+                bins[binIndex]++;
+            });
+
+            // Create bin labels
+            for (let i = 0; i < binCount; i++) {
+                const binStart = min + i * binWidth;
+                const binEnd = binStart + binWidth;
+                binLabels.push(`${binStart.toFixed(1)}-${binEnd.toFixed(1)}`);
+            }
+
+            // Create/update histogram
+            const histCtx = document.getElementById('histogramChart');
+            if (histCtx && histCtx.getContext) {
+                if (histogramChartInstance) histogramChartInstance.destroy();
+
+                histogramChartInstance = new Chart(histCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: binLabels,
+                        datasets: [{
+                            label: `${metricLabels[metricField]} Distribution`,
+                            data: bins,
+                            backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 1.5,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'x',
+                        plugins: {
+                            legend: { display: true, labels: { font: { size: 10 } } },
+                            title: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { font: { size: 9 }, stepSize: 1 },
+                                title: { display: true, text: 'Frequency', font: { size: 10 } },
+                                grid: { color: 'rgba(200,200,200,0.2)' }
+                            },
+                            x: {
+                                ticks: { font: { size: 8 } },
+                                title: { display: true, text: metricLabels[metricField], font: { size: 10 } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+
+                console.log(`Histogram created for ${metricLabels[metricField]}`);
+            }
+        }
+
+        function updateHistogramListener() {
+            const metricSelect = document.getElementById('histogramMetric');
+            if (metricSelect) {
+                metricSelect.addEventListener('change', function() {
+                    createHistogram(this.value);
+                });
+            }
+        }
+
+        // Initialize
+        initMap();
+        loadGeoJSON();
+        initComparisonVariableSelectors();
+
+        // After initialization, set up event listeners
+        map.on('zoomend', updateClusters);
+
+        // Register functions for global use
+        window.addToComparisonById = addToComparisonById;
+
+        // Fix map sizing
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+    
+    </script>
+</body>
+</html>
