@@ -803,6 +803,234 @@
         .selection-item:hover {
             background: #f0f4ff;
         }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100% !important;
+                height: auto;
+                max-height: 40vh;
+                overflow-y: auto;
+                border-bottom: 2px solid #e0e4e8;
+            }
+
+            #map {
+                height: 60vh !important;
+            }
+
+            .sidebar-header h1 {
+                font-size: 16px;
+            }
+
+            .sidebar-section {
+                padding: 12px 15px;
+            }
+
+            .lake-item {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+
+            .control-panel {
+                padding: 12px;
+            }
+
+            .basemap-button {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                max-height: 35vh;
+            }
+
+            #map {
+                height: 65vh !important;
+            }
+
+            .sidebar-header h1 {
+                font-size: 14px;
+            }
+
+            .sidebar-header p {
+                font-size: 11px;
+            }
+
+            .search-input {
+                font-size: 13px;
+                padding: 8px 10px;
+            }
+
+            .lake-name {
+                font-size: 12px;
+            }
+
+            .lake-id {
+                font-size: 10px;
+            }
+
+            .tab-btn {
+                font-size: 11px;
+                padding: 8px;
+            }
+
+            .chart-container {
+                height: 250px !important;
+            }
+
+            .control-panel button {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 30vh;
+            }
+
+            #map {
+                height: 70vh !important;
+            }
+
+            .sidebar-header {
+                padding: 16px 12px;
+            }
+
+            .sidebar-header h1 {
+                font-size: 13px;
+                margin-bottom: 4px;
+            }
+
+            .sidebar-header p {
+                font-size: 10px;
+            }
+
+            .sidebar-content {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            .search-input {
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+
+            .lake-item {
+                padding: 8px;
+                margin-bottom: 6px;
+            }
+
+            .lake-name {
+                font-size: 11px;
+            }
+
+            .lake-id {
+                font-size: 9px;
+            }
+
+            .lake-info {
+                gap: 4px;
+            }
+
+            .lake-badge {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .stat-item {
+                padding: 10px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
+
+            .stat-value {
+                font-size: 12px;
+            }
+
+            .tab-btn {
+                font-size: 10px;
+                padding: 6px;
+            }
+
+            .tab-content {
+                padding: 10px;
+            }
+
+            .control-panel {
+                padding: 10px;
+            }
+
+            .control-panel button {
+                font-size: 11px;
+                padding: 6px 10px;
+                margin: 3px 0;
+                width: 100%;
+            }
+
+            .control-panel select {
+                font-size: 11px;
+                padding: 6px;
+                width: 100%;
+            }
+
+            .basemap-button {
+                font-size: 10px;
+                padding: 5px 8px;
+                margin: 2px;
+            }
+
+            .chart-container {
+                height: 200px !important;
+            }
+
+            table {
+                font-size: 10px;
+            }
+
+            th, td {
+                padding: 4px;
+            }
+
+            #lakesList {
+                max-height: 300px;
+            }
+
+            .colorbar {
+                margin: 10px 0;
+            }
+        }
+
+        /* Ensure map is responsive */
+        #map {
+            width: 100%;
+        }
+
+        /* Touch-friendly button sizing for mobile */
+        @media (max-width: 768px) {
+            button, input, select {
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -897,6 +1125,26 @@
                             <div class="acknowledgement-title">📖 Project Description</div>
                             <div class="acknowledgement-text">
                                 The alluvial valley of the Mississippi River is an extensive area harboring hundreds of lakes created by fluvial dynamics. These floodplain lakes are scattered throughout the valley and carved over thousands of years by shifting river courses and other hydro-fluvial processes associated with contemporary and prehistoric rivers. These lakes have significant ecological importance as they support a large component of North American biodiversity. We used remote sensing to catalog lakes, to characterize morphology, and to characterize connectivity. We identified over 1,300 permanent lakes totaling over 100,000 ha. We also list the likelihood for bigheaded carp inhabiting the lake. Details are available in the listed publications.
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #ddd;">
+                                    <div style="font-weight: 600; margin-bottom: 12px; color: #667eea;">📚 Metric Definitions</div>
+                                    <div style="font-size: 12px; color: #666; line-height: 1.6;">
+                                        <div style="margin-bottom: 10px;">
+                                            <strong style="color: #333;">Cohesion (m):</strong> Measure of spatial coherence and connectivity between lake patches.
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <strong style="color: #333;">Proximity (m):</strong> The spatial closeness of features such as shorelines, inlets, outlets, and surrounding landforms.
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <strong style="color: #333;">Exchange (count):</strong> Movement of water, sediments, nutrients, and organisms between the lake and its environment.
+                                        </div>
+                                        <div style="margin-bottom: 10px;">
+                                            <strong style="color: #333;">Dispersion (m):</strong> The spreading out of substances (like nutrients, pollutants, or organisms) within the lake or between connected water bodies.
+                                        </div>
+                                        <div style="margin-top: 12px; font-size: 11px; color: #999; font-style: italic;">
+                                            All metrics are described in detail in the papers cited above.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1251,7 +1499,7 @@
         // Load and display GeoJSON
         async function loadGeoJSON() {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/hafez-ahmad/Oxbows/main/df_merged_arcgis.geojson');
+                const response = await fetch('df_merged_arcgis.geojson');
                 const data = await response.json();
                 
                 lakeFeatures = data.features;
@@ -1343,7 +1591,7 @@
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Width (km):</span>
-                    <span class="popup-value">${(props.Width_km || 0).toFixed(2)}</span>
+                    <span class="popup-value">${((props.Width_km || 0) / 10).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Length (km):</span>
@@ -1353,22 +1601,22 @@
 
             // Connectivity Metrics - Structural
             popupHTML += `<div class="popup-section">
-                <div class="popup-section-title">📐 More Lake Morphometry </div>
+                <div class="popup-section-title">📐 More Lake Morphometry (Connectivity Metrics)</div>
                 <div class="popup-row">
-                    <span class="popup-label">Cohesion:</span>
-                    <span class="popup-value">${(props.Cohesion_J || 0).toFixed(2)}</span>
+                    <span class="popup-label">Cohesion (m):</span>
+                    <span class="popup-value" title="Measure of spatial coherence and connectivity between lake patches">${(props.Cohesion_J || 0).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
-                    <span class="popup-label">Proximity:</span>
-                    <span class="popup-value">${(props.Proximity_ || 0).toFixed(2)}</span>
+                    <span class="popup-label">Proximity (m):</span>
+                    <span class="popup-value" title="Average distance between patches, smaller values indicate closer patches">${(props.Proximity_ || 0).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
-                    <span class="popup-label">Exchange:</span>
-                    <span class="popup-value">${(props.Exchange_J || 0).toFixed(0)}</span>
+                    <span class="popup-label">Exchange (count):</span>
+                    <span class="popup-value" title="Number of connecting lake patches">${(props.Exchange_J || 0).toFixed(0)}</span>
                 </div>
                 <div class="popup-row">
-                    <span class="popup-label">Dispersion:</span>
-                    <span class="popup-value">${(props.Dispersion || 0).toFixed(2)}</span>
+                    <span class="popup-label">Dispersion (m):</span>
+                    <span class="popup-value" title="Spatial spread and distribution of lake patches">${(props.Dispersion || 0).toFixed(2)}</span>
                 </div>
             </div>`;
 
