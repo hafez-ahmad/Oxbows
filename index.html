@@ -474,7 +474,7 @@
         }
 
         .acknowledgement-panel.expanded {
-            max-height: 800px;
+            max-height: 1800px;
             padding: 12px;
         }
 
@@ -1126,22 +1126,34 @@
                             <div class="acknowledgement-text">
                                 The alluvial valley of the Mississippi River is an extensive area harboring hundreds of lakes created by fluvial dynamics. These floodplain lakes are scattered throughout the valley and carved over thousands of years by shifting river courses and other hydro-fluvial processes associated with contemporary and prehistoric rivers. These lakes have significant ecological importance as they support a large component of North American biodiversity. We used remote sensing to catalog lakes, to characterize morphology, and to characterize connectivity. We identified over 1,300 permanent lakes totaling over 100,000 ha. We also list the likelihood for bigheaded carp inhabiting the lake. Details are available in the listed publications.
                                 <div style="margin-top: 16px; padding-top: 16px; border-top: 2px solid #ddd;">
-                                    <div style="font-weight: 600; margin-bottom: 12px; color: #667eea;">📚 Metric Definitions</div>
-                                    <div style="font-size: 12px; color: #666; line-height: 1.6;">
-                                        <div style="margin-bottom: 10px;">
-                                            <strong style="color: #333;">Cohesion (m):</strong> Measure of spatial coherence and connectivity between lake patches.
-                                        </div>
-                                        <div style="margin-bottom: 10px;">
-                                            <strong style="color: #333;">Proximity (m):</strong> The spatial closeness of features such as shorelines, inlets, outlets, and surrounding landforms.
-                                        </div>
-                                        <div style="margin-bottom: 10px;">
-                                            <strong style="color: #333;">Exchange (count):</strong> Movement of water, sediments, nutrients, and organisms between the lake and its environment.
-                                        </div>
-                                        <div style="margin-bottom: 10px;">
-                                            <strong style="color: #333;">Dispersion (m):</strong> The spreading out of substances (like nutrients, pollutants, or organisms) within the lake or between connected water bodies.
-                                        </div>
-                                        <div style="margin-top: 12px; font-size: 11px; color: #999; font-style: italic;">
-                                            All metrics are described in detail in the papers cited above.
+                                    <div style="font-weight: 600; margin-bottom: 12px; color: #667eea;">📚 Comprehensive Metric Definitions</div>
+                                    <div style="font-size: 11px; color: #666; line-height: 1.8;">
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Area (km²):</strong> Surface area of lake polygon. All area calculations performed under an Albers Equal Area Conic projection (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Perimeter (km):</strong> Length of lake perimeter (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Width (km):</strong> Median of multiple width measurements taken approximately every 100 m along the lake length (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Length (km):</strong> Length of a line following the center of the lake along the longest axis (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Length_width_ratio:</strong> Length divided by mean width to index the extent of elongation (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">P(Depth > 2m):</strong> Probability of lake maximum depth deeper than 2 m (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Inundation_index (%):</strong> Relative frequency of inundation. Values closer to 100 indicate frequent water coverage (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">SDI (Shoreline Development Index):</strong> Index of shoreline complexity (1 = circle, higher = more dendritic) (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">In_batture (0/1):</strong> Binary indicator of whether lake is inside (1) or outside (0) the levee system (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Nearest_lake (km):</strong> Distance to the nearest adjacent lake (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Distance_to_River (km):</strong> Network distance to river (flow > 170 m³/s) via streams, canals, and ditches (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">LC_Agric (%):</strong> Percentage of surrounding area comprising agricultural crops (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">LC_W&F (%):</strong> Percentage of surrounding area classified as wetlands or forest (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">LC_Water (%):</strong> Percentage of surrounding area classified as water (Miranda et al. 2021).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Duration (months/year):</strong> Average number of months per year a lake is connected to a river (Ahmad et al. 2024).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Timing (month, 1-12):</strong> Average month lakes establish their first water connection with the river (Ahmad et al. 2024).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Recurrence (%):</strong> Percentage of years in which the lake was connected to a river network (Ahmad et al. 2024).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Dry_season (%):</strong> Percentage of years connected during dry season (Jul-Sep) (Ahmad et al. 2024).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Wet_season (%):</strong> Percentage of years connected during wet season (Mar-May) (Ahmad et al. 2024).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Seasonality (%):</strong> Wet-season connectivity minus dry-season connectivity. Quantifies seasonal connectivity variation (Ahmad et al. 2024).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Continuance (months):</strong> Maximum consecutive months of connectivity during 2000–2022 (Ahmad et al. 2024).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Disconnectedness (months):</strong> Longest continuous disconnection period in 2000–2022 (Ahmad et al. 2024).</div>
+                                        <div style="margin-bottom: 6px;"><strong style="color: #333;">Carp_presence (0/1):</strong> Binary predicted presence (0 or 1) based on Maxent ecological niche model (Palmieri et al. 2026).</div>
+                                        
+                                        <div style="margin-top: 12px; font-size: 10px; color: #999; font-style: italic; border-top: 2px solid #ddd; padding-top: 12px;">
+                                            ✓ All metrics fully described in the papers cited in the Papers section above.
                                         </div>
                                     </div>
                                 </div>
@@ -1580,7 +1592,7 @@
 
             // Morphometry
             popupHTML += `<div class="popup-section">
-                <div class="popup-section-title">📐Lake Morphometry</div>
+                <div class="popup-section-title">📐 Lake Morphometry</div>
                 <div class="popup-row">
                     <span class="popup-label">Area (km²):</span>
                     <span class="popup-value">${(props.AREASQKM || 0).toFixed(2)}</span>
@@ -1597,26 +1609,38 @@
                     <span class="popup-label">Length (km):</span>
                     <span class="popup-value">${(props.Length_km || 0).toFixed(2)}</span>
                 </div>
+                <div class="popup-row">
+                    <span class="popup-label">Length-Width Ratio:</span>
+                    <span class="popup-value">${(props.Length_width_ratio || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">P(Depth > 2m):</span>
+                    <span class="popup-value">${(props.P_depth2m || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Inundation Index (%):</span>
+                    <span class="popup-value">${(props.Inundation_index || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Shoreline Dev. Index:</span>
+                    <span class="popup-value">${(props.SDI || 0).toFixed(2)}</span>
+                </div>
             </div>`;
 
-            // Connectivity Metrics - Structural
+            // Connectivity Metrics - Spatial & Hydrological
             popupHTML += `<div class="popup-section">
-                <div class="popup-section-title">📐 More Lake Morphometry (Connectivity Metrics)</div>
+                <div class="popup-section-title">🔗 Spatial Connectivity Metrics</div>
                 <div class="popup-row">
-                    <span class="popup-label">Cohesion (m):</span>
-                    <span class="popup-value" title="Measure of spatial coherence and connectivity between lake patches">${(props.Cohesion_J || 0).toFixed(2)}</span>
+                    <span class="popup-label">In Levee System (0/1):</span>
+                    <span class="popup-value">${(props.levee || 0).toFixed(0)}</span>
                 </div>
                 <div class="popup-row">
-                    <span class="popup-label">Proximity (m):</span>
-                    <span class="popup-value" title="Average distance between patches, smaller values indicate closer patches">${(props.Proximity_ || 0).toFixed(2)}</span>
+                    <span class="popup-label">Nearest Lake (km):</span>
+                    <span class="popup-value">${(props.Nearest_lake || 0).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
-                    <span class="popup-label">Exchange (count):</span>
-                    <span class="popup-value" title="Number of connecting lake patches">${(props.Exchange_J || 0).toFixed(0)}</span>
-                </div>
-                <div class="popup-row">
-                    <span class="popup-label">Dispersion (m):</span>
-                    <span class="popup-value" title="Spatial spread and distribution of lake patches">${(props.Dispersion || 0).toFixed(2)}</span>
+                    <span class="popup-label">Distance to River (km):</span>
+                    <span class="popup-value">${(props.Distance_to_River || 0).toFixed(2)}</span>
                 </div>
             </div>`;
 
@@ -1624,42 +1648,55 @@
             popupHTML += `<div class="popup-section">
                 <div class="popup-section-title">⏱️ Temporal Connectivity</div>
                 <div class="popup-row">
-                    <span class="popup-label">Duration:</span>
+                    <span class="popup-label">Duration (months/year):</span>
                     <span class="popup-value">${(props.Duration || 0).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
-                    <span class="popup-label">Timing:</span>
+                    <span class="popup-label">Timing (month):</span>
                     <span class="popup-value">${(props.Timing || 0).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
-                    <span class="popup-label">Recurrence:</span>
+                    <span class="popup-label">Recurrence (%):</span>
                     <span class="popup-value">${(props.Recurrence || 0).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
-                    <span class="popup-label">Seasonality:</span>
-                    <span class="popup-value">${(props.Seasonality || 0).toFixed(2)}</span>
+                    <span class="popup-label">Seasonality (%):</span>
+                    <span class="popup-value">${(props.Seasonalit || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Dry Season (%):</span>
+                    <span class="popup-value">${(props.Dry_season || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Wet Season (%):</span>
+                    <span class="popup-value">${(props.Wet_season || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Continuance (months):</span>
+                    <span class="popup-value">${(props.Continuanc || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Disconnectedness (months):</span>
+                    <span class="popup-value">${(props.Disconnect || 0).toFixed(2)}</span>
                 </div>
             </div>`;
 
-            // Connectivity Metrics - Hydrological
-            if (props.Dry_season !== undefined || props.Wet_season !== undefined || props.Continuance !== undefined || props.Disconnectedness !== undefined) {
-                popupHTML += `<div class="popup-section">
-                    <div class="popup-section-title">🌊 Seasonal Hydrological Connectivity</div>
-                    ${props.Dry_season !== undefined ? `<div class="popup-row"><span class="popup-label">Dry Season:</span><span class="popup-value">${(props.Dry_season || 0).toFixed(2)}</span></div>` : ''}
-                    ${props.Wet_season !== undefined ? `<div class="popup-row"><span class="popup-label">Wet Season:</span><span class="popup-value">${(props.Wet_season || 0).toFixed(2)}</span></div>` : ''}
-                    ${props.Continuance !== undefined ? `<div class="popup-row"><span class="popup-label">Continuance:</span><span class="popup-value">${(props.Continuance || 0).toFixed(2)}</span></div>` : ''}
-                    ${props.Disconnectedness !== undefined ? `<div class="popup-row"><span class="popup-label">Disconnectedness:</span><span class="popup-value">${(props.Disconnectedness || 0).toFixed(2)}</span></div>` : ''}
-                </div>`;
-            }
-
-            // Connectivity Metrics - Seasonal Timing
-            if (props.Timing_L !== undefined || props.Timing_H !== undefined) {
-                popupHTML += `<div class="popup-section">
-                    <div class="popup-section-title">📅 Connectivity during Low and High Flows</div>
-                    ${props.Timing_L !== undefined ? `<div class="popup-row"><span class="popup-label">Timing (Low):</span><span class="popup-value">${(props.Timing_L || 0).toFixed(2)}</span></div>` : ''}
-                    ${props.Timing_H !== undefined ? `<div class="popup-row"><span class="popup-label">Timing (High):</span><span class="popup-value">${(props.Timing_H || 0).toFixed(2)}</span></div>` : ''}
-                </div>`;
-            }
+            // Landcover Metrics
+            popupHTML += `<div class="popup-section">
+                <div class="popup-section-title">🌱 Landcover Composition</div>
+                <div class="popup-row">
+                    <span class="popup-label">Agricultural (%):</span>
+                    <span class="popup-value">${(props.Agr || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Wetlands & Forest (%):</span>
+                    <span class="popup-value">${(props['WF'] || 0).toFixed(2)}</span>
+                </div>
+                <div class="popup-row">
+                    <span class="popup-label">Water (%):</span>
+                    <span class="popup-value">${(props.Water || 0).toFixed(2)}</span>
+                </div>
+            </div>`;
 
             // Carp Probability
             const carpProb = parseFloat(props.Carp_P) || 0;
@@ -1685,15 +1722,7 @@
                 </div>
             </div>`;
 
-            // Hydrology
-            if (props.Duration || props.Recurrence || props.Seasonality) {
-                popupHTML += `<div class="popup-section">
-                    <div class="popup-section-title">💧 Hydrology</div>
-                    ${props.Duration ? `<div class="popup-row"><span class="popup-label">Duration:</span><span class="popup-value">${props.Duration.toFixed(2)}</span></div>` : ''}
-                    ${props.Recurrence ? `<div class="popup-row"><span class="popup-label">Recurrence:</span><span class="popup-value">${props.Recurrence.toFixed(2)}</span></div>` : ''}
-                    ${props.Seasonality ? `<div class="popup-row"><span class="popup-label">Seasonality:</span><span class="popup-value">${props.Seasonality.toFixed(2)}</span></div>` : ''}
-                </div>`;
-            }
+
 
             popupHTML += `</div>`;
 
