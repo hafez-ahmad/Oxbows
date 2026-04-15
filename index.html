@@ -1511,7 +1511,7 @@
         // Load and display GeoJSON
         async function loadGeoJSON() {
             try {
-                const response = await fetch('df_merged_arcgis.geojson');
+                const response = await fetch('https://raw.githubusercontent.com/hafez-ahmad/Oxbows/main/df_merged_arcgis.geojson?v=' + new Date().getTime());
                 const data = await response.json();
                 
                 lakeFeatures = data.features;
@@ -1611,7 +1611,7 @@
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Length-Width Ratio:</span>
-                    <span class="popup-value">${(props.Length_width_ratio || 0).toFixed(2)}</span>
+                    <span class="popup-value">${(props.Length_wid || 0).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">P(Depth > 2m):</span>
@@ -1619,7 +1619,7 @@
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Inundation Index (%):</span>
-                    <span class="popup-value">${(props.Inundation_index || 0).toFixed(2)}</span>
+                    <span class="popup-value">${(props.Inundation || 0).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Shoreline Dev. Index:</span>
@@ -1632,15 +1632,15 @@
                 <div class="popup-section-title">🔗 Spatial Connectivity Metrics</div>
                 <div class="popup-row">
                     <span class="popup-label">In Levee System (0/1):</span>
-                    <span class="popup-value">${(props.levee || 0).toFixed(0)}</span>
+                    <span class="popup-value">${isNaN(props.In_batture) ? 'N/A' : parseFloat(props.In_batture).toFixed(0)}</span>
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Nearest Lake (km):</span>
-                    <span class="popup-value">${(props.Nearest_lake || 0).toFixed(2)}</span>
+                    <span class="popup-value">${isNaN(props.Nearest_lake_km_) ? 'N/A' : parseFloat(props.Nearest_lake_km_).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Distance to River (km):</span>
-                    <span class="popup-value">${(props.Distance_to_River || 0).toFixed(2)}</span>
+                    <span class="popup-value">${isNaN(props.Distance_to_River_km_) ? 'N/A' : parseFloat(props.Distance_to_River_km_).toFixed(2)}</span>
                 </div>
             </div>`;
 
@@ -1686,15 +1686,15 @@
                 <div class="popup-section-title">🌱 Landcover Composition</div>
                 <div class="popup-row">
                     <span class="popup-label">Agricultural (%):</span>
-                    <span class="popup-value">${(props.Agr || 0).toFixed(2)}</span>
+                    <span class="popup-value">${((props.Agr || 0) * 100).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Wetlands & Forest (%):</span>
-                    <span class="popup-value">${(props['WF'] || 0).toFixed(2)}</span>
+                    <span class="popup-value">${((props['WF'] || 0) * 100).toFixed(2)}</span>
                 </div>
                 <div class="popup-row">
                     <span class="popup-label">Water (%):</span>
-                    <span class="popup-value">${(props.Water || 0).toFixed(2)}</span>
+                    <span class="popup-value">${((props.Water || 0) * 100).toFixed(2)}</span>
                 </div>
             </div>`;
 
